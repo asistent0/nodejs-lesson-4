@@ -21,16 +21,32 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
-app.get('/', function (request, response){
+app.get('/', function (request, response) {
     response.render('index', {
         title: 'Получение статей',
         url: request.cookies.url != undefined ? request.cookies.url : 'http://Habrahabr.ru',
-        num: request.cookies.num != undefined ? request.cookies.num : 5
+        num: request.cookies.num != undefined ? request.cookies.num : 2
     });
 });
 
-app.post('/ajax', function (request, response){
-    getContent({url: request.body.url, num: request.body.num}, function (data) {
+app.post('/', function (request, response) {
+    getContent(
+        {
+            url: request.cookies.url != undefined ? request.cookies.url : request.body.url,
+            num: request.cookies.num != undefined ? request.cookies.num : request.body.num
+        }, function (data) {
+            response.cookie('num', request.body.num);
+            response.cookie('url', request.body.url);
+            response.json(data);
+        });
+});
+
+app.post('/ajax', function (request, response) {
+    getContent(
+        {
+            url: request.body.url,
+            num: request.body.num
+        }, function (data) {
         response.cookie('num', request.body.num);
         response.cookie('url', request.body.url);
         response.json(data);
@@ -38,7 +54,7 @@ app.post('/ajax', function (request, response){
 });
 
 function getContent(req, callback) {
-    request.get(req.url, function(err, res, html) {
+    request.get(req.url, function (err, res, html) {
         var data = [];
         var result = {};
         if (res.statusCode != 200) {
@@ -50,14 +66,17 @@ function getContent(req, callback) {
                 if (i > req.num - 1) {
                     return;
                 }
-                $(element).find($('a')).attr('target','_blank');
+                $(element).find($('a')).attr('target', '_blank');
                 $(element).find($('img')).removeAttr('height').removeAttr('width');
+
                 var _title = $(element).find('.title').html();
                 var content = $(element).find('.html_format').html();
+
                 data.push({title: _title, content: content})
             });
-            result = {'status': 'success', 'data': data};
+            result = {'status': 'success', 'data': data, 'url': req.url, 'num': req.num};
         }
+
         callback(result);
     })
 }

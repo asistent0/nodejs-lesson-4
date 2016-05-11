@@ -18,71 +18,100 @@ html(lang="en")
             img {
                 max-width: 50%;
             }
+
             div.alert {
                 margin-top: 10px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             }
 body
-        div.container
-            div.page-header
-                h1
-                    span Получение 2 статей
-                    span  с сайта Habrahabr
-            form(method='post', action='/').form
-                div
-                    -
-                        list = ["Habrahabr", "Megamozg", "Geektimes"]
-                    each item, i in list
-                        if i == 0
-                            -
-                                var check = true
-                        else
-                            -
-                                var check = false
-                        div.radio
-                            label(for='site' + i)
-                                input(type='radio', name='site', id='site' + i, checked= check, data-url='http://' + item + '.ru' value= item)
-                                = item
-                div
-                    select.form-control#num
-                        each val in [2, 4, 6, 8, 10]
-                            option(value= val)= val
-        div.article.container
+    div.container
+        div.page-header
+            h1
+                span Получение 2 статей
+                span  с сайта Habrahabr
+        form(method='post', action='/').form
+            div
+                -
+                    list = ["Habrahabr", "Megamozg", "Geektimes"]
+                each item, i in list
+                    if i == 0
+                        -
+                            var check = true
+                    else
+                        -
+                            var check = false
+                    div.radio
+                        label(for='site' + i)
+                            input(type='radio', name='site', id='site' + i, checked= check, data-url='http://' + item + '.ru' value= item)
+                            = item
+            div
+                select.form-control#num
+                    each val in [2, 4, 6, 8, 10]
+                        option(value= val)= val
+    div.article.container
 
-        script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js")
-        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js")
-        script.
-            $(document).ready(function () {
-                var div = $('.page-header');
-                var select = $('#num');
-                var radio = $('input[name=site]');
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js")
+    script.
+        $(document).ready(function () {
+            var div = $('.page-header');
+            var select = $('#num');
+            var radio = $('input[name=site]');
 
-                setContent();
-
-                select.on('change', function () {
-                    div.children('h1').children('span:first').text('Получение ' + select.val() + ' статей ');
-                    setContent();
-                })
-                radio.on('change', function () {
-                    div.children('h1').children('span:last').text(' с сайта ' + $('input[name=site]:checked').val());
-                    setContent();
-                })
-
-                function setContent() {
-                    $('.alert').remove();
-                    $.post('/ajax', {
-                        'url': $('input[name=site]:checked').data('url'),
-                        'num': select.val()
-                    }, function (data) {
-                        if (data.status == 'error') {
-                            $('div.article.container').append('<div class="alert alert-danger"><b>Ошибка получения данных</div>');
-                            return;
-                        }
-                        $.each(data.data, function (index, param) {
-                            $('div.article.container').append('<div class="alert alert-default"><h2>' + param.title + '</h2><br>' + param.content + '</div>');
-                        });
-                    }, 'json').fail(function () {
-                        $('div.article.container').append('<div class="alert alert-danger"><b>Ошибка подключения</div>');
-                    })
+            $.post('/', {
+                'url': $('input[name=site]:checked').data('url'),
+                'num': select.val()
+            }, function (data) {
+                if (data.status == 'error') {
+                    $('div.article.container')
+                            .append('<div class="alert alert-danger"><b>Ошибка получения данных</div>');
+                    return;
                 }
-            });
+                $.each(data.data, function (index, param) {
+                    $('div.article.container')
+                            .append('<div class="alert alert-default"><h2>' +
+                                    param.title + '</h2><br>' + param.content + '</div>');
+                });
+
+                select.val(data.num).attr("selected", "selected");
+                $('[data-url="' + data.url + '"]').attr('checked', 'checked');
+                div.children('h1').children('span:first').text('Получение ' + select.val() + ' статей ');
+                div.children('h1').children('span:last').text(' с сайта ' + $('input[name=site]:checked').val());
+
+            }, 'json').fail(function () {
+                $('div.article.container')
+                        .append('<div class="alert alert-danger"><b>Ошибка подключения</div>');
+            })
+
+
+            select.on('change', function () {
+                div.children('h1').children('span:first').text('Получение ' + select.val() + ' статей ');
+                setContent();
+            })
+            radio.on('change', function () {
+                div.children('h1').children('span:last').text(' с сайта ' + $('input[name=site]:checked').val());
+                setContent();
+            })
+
+            function setContent() {
+                $('.alert').remove();
+                $.post('/ajax', {
+                    'url': $('input[name=site]:checked').data('url'),
+                    'num': select.val()
+                }, function (data) {
+                    if (data.status == 'error') {
+                        $('div.article.container')
+                                .append('<div class="alert alert-danger"><b>Ошибка получения данных</div>');
+                        return;
+                    }
+                    $.each(data.data, function (index, param) {
+                        $('div.article.container')
+                                .append('<div class="alert alert-default"><h2>' +
+                                        param.title + '</h2><br>' + param.content + '</div>');
+                    });
+                }, 'json').fail(function () {
+                    $('div.article.container')
+                            .append('<div class="alert alert-danger"><b>Ошибка подключения</div>');
+                })
+            }
+        });
