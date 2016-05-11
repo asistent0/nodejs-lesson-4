@@ -19,13 +19,14 @@ html(lang="en")
                 max-width: 50%;
             }
             div.alert {
+                margin-top: 10px;
                 box-shadow: 0 0 10px rgba(0,0,0,0.5);
             }
 body
         div.container
             div.page-header
                 h1
-                    span Получение 5 статей
+                    span Получение 2 статей
                     span  с сайта Habrahabr
             form(method='post', action='/').form
                 div
@@ -44,7 +45,7 @@ body
                                 = item
                 div
                     select.form-control#num
-                        each val in [5, 10, 15, 20]
+                        each val in [2, 4, 6, 8, 10]
                             option(value= val)= val
         div.article.container
 
