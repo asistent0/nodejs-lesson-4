@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/asistent0/nodejs-lesson-4/issues"
   },
-  "homepage": "https://github.com/asistent0/nodejs-lesson-4#readme"
+  "homepage": "https://github.com/asistent0/nodejs-lesson-4#readme",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "cheerio": "^0.20.0",
+    "consolidate": "^0.14.1",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4",
+    "jade": "^1.11.0",
+    "request": "^2.72.0"
+  }
 }

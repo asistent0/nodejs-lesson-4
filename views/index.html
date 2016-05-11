@@ -1,0 +1,39 @@
+<html lang="en"><head><meta charset="utf8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Получение статей с сайтов</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"/><!--[if lt IE 9]><script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script><script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]--><style>img {
+    max-width: 50%;
+}
+div.alert {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}</style></head></html><body><div class="container"><div class="page-header"><h1><span>Получение 5 статей</span><span> с сайта Habrahabr</span></h1></div><form method="post" action="/" class="form"><div><div class="radio"><label for="site0"><input type="radio" name="site" id="site0" checked="checked" data-url="http://Habrahabr.ru" value="Habrahabr"/>Habrahabr</label></div><div class="radio"><label for="site1"><input type="radio" name="site" id="site1" data-url="http://Megamozg.ru" value="Megamozg"/>Megamozg</label></div><div class="radio"><label for="site2"><input type="radio" name="site" id="site2" data-url="http://Geektimes.ru" value="Geektimes"/>Geektimes</label></div></div><div><select id="num" class="form-control"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option></select></div></form></div><div class="article container"></div><script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script><script>$(document).ready(function () {
+    var div = $('.page-header');
+    var select = $('#num');
+    var radio = $('input[name=site]');
+
+    setContent();
+
+    select.on('change', function () {
+        div.children('h1').children('span:first').text('Получение ' + select.val() + ' статей ');
+        setContent();
+    })
+    radio.on('change', function () {
+        div.children('h1').children('span:last').text(' с сайта ' + $('input[name=site]:checked').val());
+        setContent();
+    })
+
+    function setContent() {
+        $('.alert').remove();
+        $.post('/ajax', {
+            'url': $('input[name=site]:checked').data('url'),
+            'num': select.val()
+        }, function (data) {
+            if (data.status == 'error') {
+                $('div.article.container').append('<div class="alert alert-danger"><b>Ошибка получения данных</div>');
+                return;
+            }
+            $.each(data.data, function (index, param) {
+                $('div.article.container').append('<div class="alert alert-default"><h2>' + param.title + '</h2><br>' + param.content + '</div>');
+            });
+        }, 'json').fail(function () {
+            $('div.article.container').append('<div class="alert alert-danger"><b>Ошибка подключения</div>');
+        })
+    }
+});</script></body>
