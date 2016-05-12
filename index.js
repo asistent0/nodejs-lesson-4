@@ -22,11 +22,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 app.get('/', function (request, response) {
-    response.render('index', {
-        title: 'Получение статей',
-        url: request.cookies.url != undefined ? request.cookies.url : 'http://Habrahabr.ru',
-        num: request.cookies.num != undefined ? request.cookies.num : 2
-    });
+    response.render('index');
 });
 
 app.post('/', function (request, response) {
